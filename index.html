@@ -188,9 +188,25 @@ textarea{min-height:120px;resize:vertical}.form-actions{margin-top:16px;display:
 <button type="button" class="secondary" onclick="adminLogout()">Log Out</button></div>
 <div class="tabs">
 <button type="button" class="tab active" onclick="adminTab('admin-news',this)">📰 News</button>
+<button type="button" class="tab" onclick="adminTab('admin-add-news',this)">➕ Add News</button>
 <button type="button" class="tab" onclick="adminTab('admin-show',this)">🎨 Student Work</button>
-<button type="button" class="tab" onclick="adminTab('admin-market',this)">🛍️ Marketplace</button></div>
+<button type="button" class="tab" onclick="adminTab('admin-market',this)">🛍️ Marketplace</button>
+</div>
 <div id="admin-news" class="panel active"><div id="adminNewsList" class="admin-list"></div></div>
+<div id="admin-add-news" class="panel">
+<div class="info">
+<h3>📝 Publish News as Administrator</h3>
+<p style="color:#607086;margin-top:6px">News added here is published immediately and does not require approval.</p>
+<form id="adminNewsForm" class="form-grid">
+<div><label class="form-label">Headline</label><input id="adminNewsTitle" required placeholder="e.g. Students complete their first website"></div>
+<div><label class="form-label">Author</label><input id="adminNewsAuthor" required placeholder="e.g. Kathangali Digital Skills Project"></div>
+<div><label class="form-label">Category</label><select id="adminNewsCategory"><option>Project News</option><option>Community</option><option>Technology</option><option>Sports</option><option>Education</option><option>Student Achievement</option></select></div>
+<div><label class="form-label">Date</label><input id="adminNewsDate" type="date" required></div>
+<div class="full"><label class="form-label">News story</label><textarea id="adminNewsBody" required placeholder="Write the news story here..."></textarea></div>
+<div class="full form-actions"><button class="primary" type="submit">🚀 Publish News</button><button class="secondary" type="reset">Clear</button></div>
+</form>
+</div>
+</div>
 <div id="admin-show" class="panel"><div id="adminShowList" class="admin-list"></div></div>
 <div id="admin-market" class="panel"><div id="adminMarketList" class="admin-list"></div></div>
 </div></div></div></section>
@@ -272,6 +288,26 @@ document.getElementById('marketForm').addEventListener('submit',e=>{
  if(f){let r=new FileReader();r.onload=()=>add(r.result);r.readAsDataURL(f)}else add('');
 });
 
+/* ADMIN DIRECT NEWS PUBLISHING */
+document.getElementById('adminNewsForm').addEventListener('submit',e=>{
+ e.preventDefault();
+ const form=e.currentTarget;
+ const title=document.getElementById('adminNewsTitle').value.trim();
+ const author=document.getElementById('adminNewsAuthor').value.trim();
+ const category=document.getElementById('adminNewsCategory').value;
+ const date=document.getElementById('adminNewsDate').value;
+ const body=document.getElementById('adminNewsBody').value.trim();
+ if(!title||!author||!date||!body){form.reportValidity();return;}
+ let d=loadData('kathangaliNews');
+ d.push({title,author,category,date,body,status:'approved',createdBy:'administrator'});
+ saveData('kathangaliNews',d);
+ form.reset();
+ document.getElementById('adminNewsDate').value=new Date().toISOString().slice(0,10);
+ renderAdmin();
+ renderNews();
+ alert('News published successfully. It is now visible in the public News section.');
+});
+
 /* ADMIN FUNCTIONS */
 const ADMIN_PASSWORD='Kathangali2026!'; // Change this password before publishing.
 function adminLogin(){
@@ -292,7 +328,10 @@ function reviewItem(type,index,status){const map={news:'kathangaliNews',show:'ka
 function deleteItem(type,index){if(!confirm('Delete this submission permanently from this device?'))return;const map={news:'kathangaliNews',show:'kathangaliShowcase',market:'kathangaliMarket'},d=loadData(map[type]);d.splice(index,1);saveData(map[type],d);renderAdmin();renderNews();renderShowcase();renderMarket();}
 
 document.addEventListener('DOMContentLoaded',()=>{
- newsDate.value=new Date().toISOString().slice(0,10);renderNews();renderShowcase();renderMarket();
+ const today=new Date().toISOString().slice(0,10);
+newsDate.value=today;
+document.getElementById('adminNewsDate').value=today;
+renderNews();renderShowcase();renderMarket();
  if(sessionStorage.getItem('kathangaliAdmin')==='1'){document.getElementById('adminLogin').style.display='none';document.getElementById('adminPanel').classList.remove('locked');renderAdmin();}
 });
 </script>
