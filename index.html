@@ -180,7 +180,7 @@ textarea{min-height:120px;resize:vertical}.form-actions{margin-top:16px;display:
 <h3>🔐 Administrator Login</h3>
 <p style="color:#607086;margin:8px 0 16px">Enter your administrator password to review submissions on this device.</p>
 <input id="adminPassword" type="password" placeholder="Administrator password">
-<div class="form-actions"><button class="primary" onclick="adminLogin()">Log In</button></div>
+<div class="form-actions"><button type="button" id="adminLoginBtn" class="primary">Log In</button></div>
 <div id="adminLoginMsg"></div></div>
 <div id="adminPanel" class="locked" style="margin-top:25px"><div class="admin-box">
 <div style="display:flex;justify-content:space-between;gap:12px;align-items:center;flex-wrap:wrap">
@@ -311,9 +311,23 @@ document.getElementById('adminNewsForm').addEventListener('submit',e=>{
 /* ADMIN FUNCTIONS */
 const ADMIN_PASSWORD='Kathangali2026!'; // Change this password before publishing.
 function adminLogin(){
- const p=document.getElementById('adminPassword').value,msg=document.getElementById('adminLoginMsg');
- if(p===ADMIN_PASSWORD){sessionStorage.setItem('kathangaliAdmin','1');document.getElementById('adminLogin').style.display='none';document.getElementById('adminPanel').classList.remove('locked');renderAdmin();}
- else{msg.textContent='Incorrect administrator password.';msg.style.color='#a32626';}
+ const input=document.getElementById('adminPassword');
+ const msg=document.getElementById('adminLoginMsg');
+ const loginBox=document.getElementById('adminLogin');
+ const panel=document.getElementById('adminPanel');
+ const p=(input.value||'').trim();
+ if(p===ADMIN_PASSWORD){
+   sessionStorage.setItem('kathangaliAdmin','1');
+   loginBox.style.display='none';
+   panel.classList.remove('locked');
+   msg.textContent='';
+   renderAdmin();
+   return true;
+ }
+ msg.textContent='Incorrect administrator password.';
+ msg.style.color='#a32626';
+ input.focus();
+ return false;
 }
 function adminLogout(){sessionStorage.removeItem('kathangaliAdmin');document.getElementById('adminPanel').classList.add('locked');document.getElementById('adminLogin').style.display='block';document.getElementById('adminPassword').value='';}
 function statusBadge(s){return '<span class="admin-status '+(s==='approved'?'approved':'')+'">'+esc(s||'pending').toUpperCase()+'</span>';}
@@ -328,6 +342,11 @@ function reviewItem(type,index,status){const map={news:'kathangaliNews',show:'ka
 function deleteItem(type,index){if(!confirm('Delete this submission permanently from this device?'))return;const map={news:'kathangaliNews',show:'kathangaliShowcase',market:'kathangaliMarket'},d=loadData(map[type]);d.splice(index,1);saveData(map[type],d);renderAdmin();renderNews();renderShowcase();renderMarket();}
 
 document.addEventListener('DOMContentLoaded',()=>{
+  const loginBtn=document.getElementById('adminLoginBtn');
+  if(loginBtn) loginBtn.addEventListener('click',adminLogin);
+  const passwordInput=document.getElementById('adminPassword');
+  if(passwordInput) passwordInput.addEventListener('keydown',e=>{if(e.key==='Enter') adminLogin();});
+
  const today=new Date().toISOString().slice(0,10);
 newsDate.value=today;
 document.getElementById('adminNewsDate').value=today;
