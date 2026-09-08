@@ -62,7 +62,7 @@ textarea{min-height:120px;resize:vertical}.form-actions{margin-top:16px;display:
 </style>
 </head>
 <body>
-<header class="nav"><div class="navin"><div class="logo">KATHANGALI <span>DIGITAL</span></div><button class="menu" onclick="toggleMenu()">☰</button><div id="links" class="links">
+<header class="nav"><div class="navin"><div class="logo">KATHANGALI <span>DIGITAL</span></div><button type="button" class="menu" onclick="toggleMenu()">☰</button><div id="links" class="links">
 <a href="#home">Home</a><a href="#about">About</a><a href="#skills">Skills</a><a href="#news">📰 News</a><a href="#showcase">🎨 Showcase</a><a href="#marketplace">🛍️ Marketplace</a><a href="#impact">Impact</a><a href="#support">Support</a><a href="#contact">Contact</a><a href="#admin">🔐 Admin</a>
 </div></div></header>
 
@@ -93,9 +93,10 @@ textarea{min-height:120px;resize:vertical}.form-actions{margin-top:16px;display:
 <h2>Learn by reporting real stories.</h2>
 <p class="lead feature-intro">Learners can practise digital journalism by writing about project activities, community events, technology, sports and achievements.</p>
 <div class="tabs">
-<button class="tab active" onclick="showTab('news-read',this)">📰 Read News</button>
-<button class="tab" onclick="showTab('news-write',this)">✍️ Become a Reporter</button>
+<button type="button" class="tab active" onclick="showTab('news-read',this)">📰 Read News</button>
+<button type="button" class="tab" onclick="showTab('news-write',this)">✍️ Become a Reporter</button>
 </div>
+<div class="notice" style="margin-top:12px">Choose a tab above to read stories or submit a new story.</div>
 <div id="news-read" class="panel active"><div id="newsList" class="listing-grid"></div></div>
 <div id="news-write" class="panel">
 <div class="info"><h3>📝 Submit a Story</h3>
@@ -115,9 +116,10 @@ textarea{min-height:120px;resize:vertical}.form-actions{margin-top:16px;display:
 <p class="eyebrow">STUDENT SHOWCASE</p><h2>See what our learners are creating.</h2>
 <p class="lead">Display posters, drawings, websites, animations, digital books and other projects.</p>
 <div class="tabs">
-<button class="tab active" onclick="showTab('show-read',this)">🎨 View Work</button>
-<button class="tab" onclick="showTab('show-add',this)">➕ Add Student Work</button>
+<button type="button" class="tab active" onclick="showTab('show-read',this)">🎨 View Work</button>
+<button type="button" class="tab" onclick="showTab('show-add',this)">➕ Add Student Work</button>
 </div>
+<div class="notice" style="margin-top:12px">Choose a tab above to view projects or add student work.</div>
 <div id="show-read" class="panel active"><div id="showcaseList" class="listing-grid"></div></div>
 <div id="show-add" class="panel">
 <div class="info"><h3>🖼️ Add a Student Project</h3>
@@ -137,9 +139,10 @@ textarea{min-height:120px;resize:vertical}.form-actions{margin-top:16px;display:
 <p class="eyebrow">KATHANGALI MARKETPLACE</p><h2>Market local products and services.</h2>
 <p class="lead">A community noticeboard for products and services available in and around Kathangali. Buyers can contact sellers directly through WhatsApp.</p>
 <div class="tabs">
-<button class="tab active" onclick="showTab('market-read',this)">🛍️ Browse</button>
-<button class="tab" onclick="showTab('market-add',this)">➕ Advertise an Item</button>
+<button type="button" class="tab active" onclick="showTab('market-read',this)">🛍️ Browse</button>
+<button type="button" class="tab" onclick="showTab('market-add',this)">➕ Advertise an Item</button>
 </div>
+<div class="notice" style="margin-top:12px">Choose a tab above to browse listings or advertise a product/service.</div>
 <div id="market-read" class="panel active"><div id="marketList" class="listing-grid"></div></div>
 <div id="market-add" class="panel">
 <div class="info"><h3>📦 List a Product or Service</h3>
@@ -182,11 +185,11 @@ textarea{min-height:120px;resize:vertical}.form-actions{margin-top:16px;display:
 <div id="adminPanel" class="locked" style="margin-top:25px"><div class="admin-box">
 <div style="display:flex;justify-content:space-between;gap:12px;align-items:center;flex-wrap:wrap">
 <div><h3>📋 Pending & Approved Content</h3><p style="color:#607086">Approve content before it appears publicly.</p></div>
-<button class="secondary" onclick="adminLogout()">Log Out</button></div>
+<button type="button" class="secondary" onclick="adminLogout()">Log Out</button></div>
 <div class="tabs">
-<button class="tab active" onclick="adminTab('admin-news',this)">📰 News</button>
-<button class="tab" onclick="adminTab('admin-show',this)">🎨 Student Work</button>
-<button class="tab" onclick="adminTab('admin-market',this)">🛍️ Marketplace</button></div>
+<button type="button" class="tab active" onclick="adminTab('admin-news',this)">📰 News</button>
+<button type="button" class="tab" onclick="adminTab('admin-show',this)">🎨 Student Work</button>
+<button type="button" class="tab" onclick="adminTab('admin-market',this)">🛍️ Marketplace</button></div>
 <div id="admin-news" class="panel active"><div id="adminNewsList" class="admin-list"></div></div>
 <div id="admin-show" class="panel"><div id="adminShowList" class="admin-list"></div></div>
 <div id="admin-market" class="panel"><div id="adminMarketList" class="admin-list"></div></div>
@@ -196,11 +199,40 @@ textarea{min-height:120px;resize:vertical}.form-actions{margin-top:16px;display:
 <script>function toggleMenu(){document.getElementById('links').classList.toggle('show')}</script>
 
 <script>
+
+if(typeof CSS==='undefined' || typeof CSS.escape!=='function'){
+  window.CSS=window.CSS||{};
+  CSS.escape=function(value){return String(value).replace(/[^a-zA-Z0-9_-]/g,'\\$&');};
+}
+
 function showTab(id,btn){
- const section=btn.closest('section');
- section.querySelectorAll('.panel').forEach(p=>p.classList.remove('active'));
- section.querySelectorAll('.tab').forEach(b=>b.classList.remove('active'));
- document.getElementById(id).classList.add('active'); btn.classList.add('active');
+  if(!btn) return;
+  const section=btn.closest('section');
+  if(!section) return;
+
+  section.querySelectorAll('.panel').forEach(p=>p.classList.remove('active'));
+  section.querySelectorAll('.tab').forEach(b=>b.classList.remove('active'));
+
+  const panel=section.querySelector('#'+CSS.escape(id));
+  if(panel){
+    panel.classList.add('active');
+    btn.classList.add('active');
+  }
+}
+
+function adminTab(id,btn){
+  if(!btn) return;
+  const box=btn.closest('.admin-box');
+  if(!box) return;
+
+  box.querySelectorAll('.panel').forEach(p=>p.classList.remove('active'));
+  box.querySelectorAll('.tab').forEach(b=>b.classList.remove('active'));
+
+  const panel=box.querySelector('#'+CSS.escape(id));
+  if(panel){
+    panel.classList.add('active');
+    btn.classList.add('active');
+  }
 }
 function loadData(key){try{return JSON.parse(localStorage.getItem(key)||'[]')}catch(e){return[]}}
 function saveData(key,data){localStorage.setItem(key,JSON.stringify(data))}
@@ -218,8 +250,16 @@ function renderMarket(){
  el.innerHTML=list.length?list.slice().reverse().map(x=>`<article class="item-card">${x.image?`<img src="${x.image}" alt="${esc(x.title)}">`:''}<div class="item-body"><div class="meta">${esc(x.category)} · ${esc(x.seller)}</div><h3>${esc(x.title)}</h3><div class="price">${esc(x.price)}</div><p>${esc(x.description)}</p><a class="btn" style="margin-top:12px" target="_blank" href="https://wa.me/${encodeURIComponent(x.phone.replace(/\D/g,''))}">💬 WhatsApp Seller</a></div></article>`).join(''):'<div class="empty">No marketplace listings yet. Add the first local product or service.</div>';
 }
 document.getElementById('newsForm').addEventListener('submit',e=>{
- e.preventDefault();let d=loadData('kathangaliNews');
- d.push({title:newsTitle.value,author:newsAuthor.value,category:newsCategory.value,date:newsDate.value,body:newsBody.value,status:'pending'});
+ e.preventDefault();
+ const form=e.currentTarget;
+ const title=document.getElementById('newsTitle').value.trim();
+ const author=document.getElementById('newsAuthor').value.trim();
+ const category=document.getElementById('newsCategory').value;
+ const date=document.getElementById('newsDate').value;
+ const body=document.getElementById('newsBody').value.trim();
+ if(!title||!author||!date||!body){form.reportValidity();return;}
+ let d=loadData('kathangaliNews');
+ d.push({title,author,category,date,body,status:'pending'});
  saveData('kathangaliNews',d);e.target.reset();renderNews();alert('Story submitted as PENDING. It will not be public until you approve it.');
 });
 document.getElementById('showForm').addEventListener('submit',e=>{
@@ -240,7 +280,6 @@ function adminLogin(){
  else{msg.textContent='Incorrect administrator password.';msg.style.color='#a32626';}
 }
 function adminLogout(){sessionStorage.removeItem('kathangaliAdmin');document.getElementById('adminPanel').classList.add('locked');document.getElementById('adminLogin').style.display='block';document.getElementById('adminPassword').value='';}
-function adminTab(id,btn){const section=btn.closest('.admin-box');section.querySelectorAll('.panel').forEach(p=>p.classList.remove('active'));section.querySelectorAll('.tab').forEach(b=>b.classList.remove('active'));document.getElementById(id).classList.add('active');btn.classList.add('active');}
 function statusBadge(s){return '<span class="admin-status '+(s==='approved'?'approved':'')+'">'+esc(s||'pending').toUpperCase()+'</span>';}
 function reviewButtons(type,index,status){return '<div class="admin-actions">'+(status!=='approved'?'<button class="smallbtn approve" onclick="reviewItem(\\''+type+'\\','+index+',\\'approved\\')">✅ Approve</button>':'')+(status!=='rejected'?'<button class="smallbtn reject" onclick="reviewItem(\\''+type+'\\','+index+',\\'rejected\\')">❌ Reject</button>':'')+'<button class="smallbtn delete" onclick="deleteItem(\\''+type+'\\','+index+')">🗑️ Delete</button></div>';}
 function renderAdminList(key,id,type){
