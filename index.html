@@ -6,6 +6,7 @@
 <title>Kathangali Digital Skills Project</title>
 <meta name="description" content="A free community project helping children develop computer and digital skills in Kathangali and surrounding communities.">
 <style>
+.password-ok{color:#176b3a}.password-bad{color:#a32626}
 *{box-sizing:border-box;margin:0;padding:0}html{scroll-behavior:smooth}
 body{font-family:Arial,Helvetica,sans-serif;color:#183153;line-height:1.6;background:#fff}
 a{text-decoration:none;color:inherit}.nav{position:sticky;top:0;z-index:10;background:#fff;border-bottom:1px solid #e7edf5}
@@ -181,7 +182,7 @@ textarea{min-height:120px;resize:vertical}.form-actions{margin-top:16px;display:
 <p style="color:#607086;margin:8px 0 16px">Enter your administrator password to review submissions on this device.</p>
 <input id="adminPassword" type="password" placeholder="Administrator password">
 <div class="form-actions"><button type="button" id="adminLoginBtn" class="primary">Log In</button></div>
-<div id="adminLoginMsg"></div></div>
+<div id="adminPasswordCheck" aria-live="polite" style="margin-top:10px;font-weight:800"></div><div id="adminLoginMsg"></div></div>
 <div id="adminPanel" class="locked" style="margin-top:25px"><div class="admin-box">
 <div style="display:flex;justify-content:space-between;gap:12px;align-items:center;flex-wrap:wrap">
 <div><h3>📋 Pending & Approved Content</h3><p style="color:#607086">Approve content before it appears publicly.</p></div>
@@ -329,13 +330,28 @@ function adminLogin(){
  input.focus();
  return false;
 }
-function adminLogout(){sessionStorage.removeItem('kathangaliAdmin');document.getElementById('adminPanel').classList.add('locked');document.getElementById('adminLogin').style.display='block';document.getElementById('adminPassword').value='';}
+function adminLogout(){sessionStorage.removeItem('kathangaliAdmin');document.getElementById('adminPanel').classList.add('locked');document.getElementById('adminLogin').style.display='block';document.getElementById('adminPassword').value='';document.getElementById('adminPasswordCheck').textContent='';}
 function statusBadge(s){return '<span class="admin-status '+(s==='approved'?'approved':'')+'">'+esc(s||'pending').toUpperCase()+'</span>';}
-function reviewButtons(type,index,status){return '<div class="admin-actions">'+(status!=='approved'?'<button class="smallbtn approve" onclick="reviewItem(\\''+type+'\\','+index+',\\'approved\\')">✅ Approve</button>':'')+(status!=='rejected'?'<button class="smallbtn reject" onclick="reviewItem(\\''+type+'\\','+index+',\\'rejected\\')">❌ Reject</button>':'')+'<button class="smallbtn delete" onclick="deleteItem(\\''+type+'\\','+index+')">🗑️ Delete</button></div>';}
+function reviewButtons(type,index,status){
+  let buttons='<div class="admin-actions">';
+  if(status!=='approved') buttons+='<button class="smallbtn approve" data-action="approve">✅ Approve</button>';
+  if(status!=='rejected') buttons+='<button class="smallbtn reject" data-action="reject">❌ Reject</button>';
+  buttons+='<button class="smallbtn delete" data-action="delete">🗑️ Delete</button></div>';
+  return buttons;
+}
 function renderAdminList(key,id,type){
  const list=loadData(key),el=document.getElementById(id);
  if(!list.length){el.innerHTML='<div class="empty">No submissions yet.</div>';return;}
- el.innerHTML=list.map((x,i)=>{let title=x.title||'Untitled',detail=x.body||x.description||'';if(type==='market')detail=(x.price||'')+' · Seller: '+(x.seller||'')+'<br>'+esc(x.description||'');return '<div class="admin-item">'+statusBadge(x.status)+'<h3>'+esc(title)+'</h3><p>'+detail+'</p>'+(x.author?'<p><strong>By:</strong> '+esc(x.author)+'</p>':'')+(x.image&&type!=='news'?'<img src="'+x.image+'" style="max-width:180px;max-height:120px;object-fit:cover;border-radius:10px;margin-top:8px">':'')+reviewButtons(type,i,x.status)+'</div>';}).join('');
+ el.innerHTML=list.map((x,i)=>{let title=x.title||'Untitled',detail=x.body||x.description||'';if(type==='market')detail=(x.price||'')+' · Seller: '+(x.seller||'')+'<br>'+esc(x.description||'');return '<div class="admin-item" data-index="'+i+'">'+statusBadge(x.status)+'<h3>'+esc(title)+'</h3><p>'+detail+'</p>'+(x.author?'<p><strong>By:</strong> '+esc(x.author)+'</p>':'')+(x.image&&type!=='news'?'<img src="'+x.image+'" style="max-width:180px;max-height:120px;object-fit:cover;border-radius:10px;margin-top:8px">':'')+reviewButtons(type,i,x.status)+'</div>';}).join('');
+  el.querySelectorAll('.admin-item').forEach(item=>{
+    const index=Number(item.dataset.index);
+    const approve=item.querySelector('[data-action="approve"]');
+    const reject=item.querySelector('[data-action="reject"]');
+    const del=item.querySelector('[data-action="delete"]');
+    if(approve) approve.addEventListener('click',()=>reviewItem(type,index,'approved'));
+    if(reject) reject.addEventListener('click',()=>reviewItem(type,index,'rejected'));
+    if(del) del.addEventListener('click',()=>deleteItem(type,index));
+  });
 }
 function renderAdmin(){if(sessionStorage.getItem('kathangaliAdmin')!=='1')return;renderAdminList('kathangaliNews','adminNewsList','news');renderAdminList('kathangaliShowcase','adminShowList','show');renderAdminList('kathangaliMarket','adminMarketList','market');}
 function reviewItem(type,index,status){const map={news:'kathangaliNews',show:'kathangaliShowcase',market:'kathangaliMarket'},d=loadData(map[type]);if(!d[index])return;d[index].status=status;saveData(map[type],d);renderAdmin();renderNews();renderShowcase();renderMarket();}
@@ -345,7 +361,21 @@ document.addEventListener('DOMContentLoaded',()=>{
   const loginBtn=document.getElementById('adminLoginBtn');
   if(loginBtn) loginBtn.addEventListener('click',adminLogin);
   const passwordInput=document.getElementById('adminPassword');
-  if(passwordInput) passwordInput.addEventListener('keydown',e=>{if(e.key==='Enter') adminLogin();});
+  if(passwordInput){
+    passwordInput.addEventListener('input',()=>{
+      const check=document.getElementById('adminPasswordCheck');
+      const value=passwordInput.value;
+      if(!value){check.textContent='';check.className='';return;}
+      if(value===ADMIN_PASSWORD){
+        check.textContent='✓ Password is correct';
+        check.className='password-ok';
+      }else{
+        check.textContent='✗ Password does not match';
+        check.className='password-bad';
+      }
+    });
+    passwordInput.addEventListener('keydown',e=>{if(e.key==='Enter') adminLogin();});
+  }
 
  const today=new Date().toISOString().slice(0,10);
 newsDate.value=today;
